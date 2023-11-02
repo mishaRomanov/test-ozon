@@ -1,7 +1,16 @@
-package storage 
+package storage
 
-//создаем интерфейс как для постгреса 
-//так и для  in-memory решения 
-type Storager interface{
+import "errors"
+
+var (
+	ErrNotFound   = errors.New("link not found")
+	ErrNotWritten = errors.New("could not write the data")
+	ErrEmptyInput = errors.New("data wasn't written, input empty")
+)
+
+// создаем интерфейс как для постгреса
+// так и для  in-memory решения
+type Storager interface {
 	GetValue() error
+	WriteValue() error
 }

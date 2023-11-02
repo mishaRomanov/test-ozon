@@ -1,21 +1,26 @@
 package handler
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 )
 
-func handleGet(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+func HandleGet(w http.ResponseWriter, r *http.Request) {
+	link := mux.Vars(r)
+	finalLink := link["link"]
+	logrus.Println(finalLink)
 	w.Write([]byte("handleGet works"))
+	return
 }
 
-func handlePost(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+func HandlePost(w http.ResponseWriter, r *http.Request) {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		logrus.Infof("Body reading error: &v", err)
 	}
-
+	defer r.Body.Close()
+	logrus.Println(string(data))
+	w.Write([]byte("it works"))
 }
