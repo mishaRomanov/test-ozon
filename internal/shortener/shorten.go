@@ -13,8 +13,7 @@ func makeAShortLink(url string) string {
 	b64 := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s", sum[:10])))
 	shortUrl += b64[:10]
 
-	strings.Replace(shortUrl, "=", "", 5)
-	strings.Replace(shortUrl, "/", "_", 2)
+	shortUrl = strings.Replace(shortUrl, "=", "", 5)
 	return shortUrl
 
 }
