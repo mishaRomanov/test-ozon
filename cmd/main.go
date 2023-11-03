@@ -11,20 +11,22 @@ import (
 
 func main() {
 	//создаем сервер
+	router := mux.NewRouter()
 	server := http.Server{
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		Addr:         ":8080",
+		Handler:      router,
 	}
 
 	//делаем обработчики
-	router := mux.NewRouter()
-
 	router.HandleFunc("/link/{link}", handler.HandleGet)
 
 	router.HandleFunc("/link/test", handler.HandlePost)
 
-	//врубаем
+	logrus.Infoln("Starting the service!")
+
+	//запускаем сервер
 	logrus.Fatalf("%v", server.ListenAndServe())
 
 }
