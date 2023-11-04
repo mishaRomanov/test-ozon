@@ -22,7 +22,7 @@ func main() {
 	//делаем обработчики
 	router.HandleFunc("/link/{link}", handler.HandleGet)
 
-	router.HandleFunc("/link/test", handler.HandlePost)
+	router.HandleFunc("/link/", handler.HandlePost)
 
 	logrus.Infoln("Starting the service!")
 
