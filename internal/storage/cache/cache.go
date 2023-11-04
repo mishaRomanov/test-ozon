@@ -6,27 +6,34 @@ import (
 )
 
 type Cache struct {
-	cache map[string]string
-	mu    sync.Mutex
-}
-
-// GetValue возвращает значение
-func (c *Cache) GetValue(val string) (string, error) {
-	res, ok := c.cache[val]
-	if !ok {
-		return "", storage.ErrNotFound
-	}
-	return res, nil
+	Cache map[string]string
+	Mu    sync.Mutex
 }
 
 // WriteValue записывает значения и проверяет
 // не пустые ли значения передаваемые в метод
 func (c *Cache) WriteValue(short, full string) error {
-	c.mu.Lock()
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
 	if short == "" || full == "" {
 		return storage.ErrEmptyInput
 	}
-	defer c.mu.Unlock()
-	c.cache[short] = full
+	c.Cache[short] = full
 	return nil
+}
+
+// GetValue возвращает значение
+func (c *Cache) GetValue(val string) (string, error) {
+	c.Mu.Lock()
+	defer c.Mu.Unlock()
+	res, ok := c.Cache[val]
+	if !ok {
+		return "", storage.ErrNotFound
+	}
+	return res, nil
+}
+func NewCache() *Cache {
+	var c Cache
+	c.Cache = make(map[string]string)
+	return &c
 }
