@@ -18,6 +18,10 @@ func (c *Cache) WriteValue(short, full string) error {
 	if short == "" || full == "" {
 		return storage.ErrEmptyInput
 	}
+	//проверяем, есть ли такое значение в мапе
+	if _, ok := c.Cache[short]; ok {
+		return storage.ErrAlreadyExists
+	}
 	c.Cache[short] = full
 	return nil
 }
