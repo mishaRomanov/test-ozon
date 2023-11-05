@@ -1,60 +1,67 @@
 package handler
 
 import (
-	"github.com/gorilla/mux"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/mishaRomanov/test-ozon/internal/shortener"
 	storage "github.com/mishaRomanov/test-ozon/internal/storage/cache"
 	"github.com/sirupsen/logrus"
-	"io"
-	"net/http"
 
-	"github.com/mishaRomanov/test-ozon/internal/shortener"
+	"net/http"
 )
 
+// структура для парсинга json
+type requestBody struct {
+	Url string `json:"url"`
+}
+
 // здесь создаем in-memory хранилище для значений
+// надо сделать универсальную функцию которая создает нужное в зависимости
+// от переданного флага для запуска значение (мапа или бд)
 var store = storage.NewCache()
 
-// хендлит гет реквесты по типу localhost:8080/link/"link"
-func HandleGet(w http.ResponseWriter, r *http.Request) {
-	link := mux.Vars(r)
-	finalLink, ok := link["link"]
-	logrus.Infof("New request to redirect to: %s\n", finalLink)
-	//проверяем, нашлось ли значение в пути URL и проверяем, не пустое ли оно
-	if !ok || finalLink == "" {
-		logrus.Error("Parameter not found")
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Parameter not found"))
-		return
-	}
-	redirectTo, err := store.GetValue(finalLink)
-	if err != nil {
-		logrus.Errorf("%v", err)
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	http.Redirect(w, r, redirectTo, 200)
+// хендлит гет реквесты по типу localhost:8080/link/*
+func HandleGet(ctx *gin.Context) {
+	//достаем параметр (сокращенную ссылку)
+	shortLink := ctx.Param("shortLink")
 
+	//проверяем, не пусто ли
+	if shortLink == "" {
+		ctx.String(http.StatusBadRequest, "Empty link")
+		return
+	}
+	//находим полную ссылку-пару к короткой ссылке
+	redirectTo, err := store.GetValue(shortLink)
+	logrus.Infoln(redirectTo)
+	if err != nil {
+		//проверяем ошибку
+		logrus.Errorf("Error while searching for value %v", err)
+		ctx.String(fiber.StatusBadRequest, err.Error())
+		return
+	}
+	ctx.JSON(http.StatusOK, redirectTo)
 }
 
 // хендлер для создания ссылки
-func HandlePost(w http.ResponseWriter, r *http.Request) {
-	//читаем тело запроса
-	data, err := io.ReadAll(r.Body)
-	//проверяем ошибку чтения
+func HandlePost(ctx *gin.Context) {
+	body := requestBody{}
+	err := ctx.BindJSON(&body)
 	if err != nil {
-		logrus.Infof("Body reading error: &v", err)
+		ctx.String(fiber.StatusBadRequest, "Invalid JSON")
+		return
 	}
-	//деферим закрытие чтения тела
-	defer r.Body.Close()
-
-	oldUrl := string(data)
+	//записываем старую ссылку и новую
+	oldUrl := body.Url
 	newUrl := shorten.MakeAShortLink(oldUrl)
+
 	//записываем значения
 	err = store.WriteValue(newUrl, oldUrl)
 	if err != nil {
 		logrus.Errorf("%v", err)
+		ctx.String(http.StatusBadRequest, err.Error())
+		return
 	}
-	logrus.Infof("%v", store)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(newUrl))
+	logrus.Infof("Data written: old link - %s, new link - %s\n", oldUrl, newUrl)
+	ctx.String(http.StatusOK, fmt.Sprintf("New link generated: localhost:80/link/%s", newUrl))
 }
