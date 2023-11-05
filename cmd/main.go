@@ -1,32 +1,22 @@
 package main
 
 import (
-	"github.com/gorilla/mux"
-	"net/http"
-	"time"
-
+	"github.com/gin-gonic/gin"
 	"github.com/mishaRomanov/test-ozon/internal/handler"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
 	//создаем сервер
-	router := mux.NewRouter()
-	server := http.Server{
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
-		Addr:         ":8080",
-		Handler:      router,
-	}
+	service := gin.Default()
 
-	//делаем обработчики
-	router.HandleFunc("/link/{link}", handler.HandleGet)
+	//эндпоинт возвращает оригинальную ссылку, в пути указываем сокращенную
+	service.GET("/link/:shortLink", handler.HandleGet)
 
-	router.HandleFunc("/link/", handler.HandlePost)
-
-	logrus.Infoln("Starting the service!")
+	//эндпоинт создает короткую ссылку из оригинальной ссылки отправленной в json
+	service.POST("/link/", handler.HandlePost)
 
 	//запускаем сервер
-	logrus.Fatalf("%v", server.ListenAndServe())
+	logrus.Fatalf("%v", service.Run(":80"))
 
 }
