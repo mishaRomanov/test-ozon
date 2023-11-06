@@ -10,15 +10,15 @@ type Cache struct {
 	Mu    sync.Mutex
 }
 
-// WriteValue записывает значения и проверяет
-// не пустые ли значения передаваемые в метод
+// WriteValue.....writes value!
+// and checks if there is one
 func (c *Cache) WriteValue(short, full string) error {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()
 	if short == "" || full == "" {
 		return storage.ErrEmptyInput
 	}
-	//проверяем, есть ли такое значение в мапе
+	//check if we even have a value
 	if _, ok := c.Cache[short]; ok {
 		return storage.ErrAlreadyExists
 	}
@@ -26,7 +26,7 @@ func (c *Cache) WriteValue(short, full string) error {
 	return nil
 }
 
-// GetValue возвращает значение
+// Returns a value if one is found
 func (c *Cache) GetValue(val string) (string, error) {
 	c.Mu.Lock()
 	defer c.Mu.Unlock()

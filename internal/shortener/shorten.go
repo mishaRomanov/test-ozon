@@ -3,54 +3,61 @@ package shorten
 import (
 	"encoding/base64"
 	"github.com/google/uuid"
-	storeErr "github.com/mishaRomanov/test-ozon/internal/storage"
-	storage "github.com/mishaRomanov/test-ozon/internal/storage/cache"
+	"github.com/mishaRomanov/test-ozon/internal/storage"
 	"github.com/sirupsen/logrus"
 	"math/rand"
 	"strconv"
 	"unicode"
 )
 
-// функция выполняет проверку урл
-// на наличие чисел
+// we use that func in case it has the same index as slash
+func generateNum(n int) int {
+	return rand.Intn(n)
+}
+
+// this func checks whether the link has numbers in it or not
 func cleanShortLink(link string) string {
+	slash := rand.Intn(len(link))
+	link = link[:slash] + "_" + link[slash+1:]
 	for {
 		for _, char := range link {
-			//если хотя бы один элемент это число то завершаем цикл и возвращаем строку целиком
+			//if we have at least one num. return
 			if unicode.IsNumber(char) {
 				return link
 			}
 		}
-		//генерим случайное число индекс и вставляем его в качестве строки
+		//generating a random num
 		num := rand.Intn(len(link))
+		//checking if slash index is equal to num
+		if num == slash {
+			num = generateNum(len(link))
+			link = link[:num] + strconv.Itoa(num) + link[num+1:]
+			break
+		}
 		link = link[:num] + strconv.Itoa(num) + link[num+1:]
 		break
 	}
 	return link
 }
 
-func MakeAShortLink(url string, cache *storage.Cache) (string, error) {
-	//проверяем, есть ли такая ссылка в мапе
+func MakeAShortLink(url string, cache storage.Storager) (string, error) {
+	//checking if we already have that url
 	ok, err := cache.LookUp(url)
 	if ok {
-		logrus.Errorf("An attempt to create a short link: %v: \n", storeErr.ErrAlreadyExists)
-		return "", storeErr.ErrAlreadyExists
+		logrus.Errorf("An attempt to create a short link: %v: \n", storage.ErrAlreadyExists)
+		return "", storage.ErrAlreadyExists
 	}
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return "", err
 	}
 
-	//создаем новый рандомный uuid
+	//creating UUID
 	new := uuid.New()
-	//создаем закодированный в б64 uuid
+	//Encode uuid to base64
 	res := base64.StdEncoding.EncodeToString([]byte(new.String()[:20]))
-	//делаем строку с первыми 10 элементами
-	//это убирает из строки все лишние элементы после
-	//кодирования в base64 (типа == и прочее)
+	//we shorten uuid and then use only 10 elems of string
+	//in order to get rid of b64 junk like "==="
 	res = res[:10]
-	//генерим случайное число и по его индексу вставляем слэш
-	slash := rand.Intn(len(res))
-	res = res[:slash] + "_" + res[slash+1:]
 	return cleanShortLink(res), nil
 }
