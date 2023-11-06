@@ -7,16 +7,18 @@ import (
 )
 
 func main() {
-	//создаем сервер
+	//create a server
 	service := gin.Default()
 
-	//эндпоинт возвращает оригинальную ссылку, в пути указываем сокращенную
+	//endpoint returns the full link if found
+	//the short one is given through :shortLink parameter
 	service.GET("/link/:shortLink", handler.HandleGet)
 
-	//эндпоинт создает короткую ссылку из оригинальной ссылки отправленной в json
-	service.POST("/link/", handler.HandlePost)
+	//endpoint creates and returns a new shortened link
+	//the original one is sent through json
+	service.POST("/link/add", handler.HandlePost)
 
-	//запускаем сервер
+	//start listening
 	logrus.Fatalf("%v", service.Run(":80"))
 
 }
