@@ -6,13 +6,12 @@ type Database struct {
 	db *sql.DB
 }
 
-func Create() (*sql.DB, error) {
-}
-
-func (d *Database) WriteValue(short, full string) error {
+func (d *Database) GetValue(string) (string, error) {
 
 }
+func (d *Database) LookUp(string) (bool, error) {
 
-func (d *Database) GetValue(val string) error {
+}
+func (d *Database) WriteValue(string, string) error {
 
 }

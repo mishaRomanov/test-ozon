@@ -41,3 +41,12 @@ func NewCache() *Cache {
 	c.Cache = make(map[string]string)
 	return &c
 }
+
+func (c *Cache) LookUp(value string) (bool, error) {
+	for _, link := range c.Cache {
+		if link == value {
+			return true, storage.ErrAlreadyExists
+		}
+	}
+	return false, nil
+}

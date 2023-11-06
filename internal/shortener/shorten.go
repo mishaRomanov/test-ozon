@@ -29,14 +29,18 @@ func cleanShortLink(link string) string {
 	return link
 }
 
-func MakeAShortLink(url string, inmemory *storage.Cache) (string, error) {
+func MakeAShortLink(url string, cache *storage.Cache) (string, error) {
 	//проверяем, есть ли такая ссылка в мапе
-	for key, link := range inmemory.Cache {
-		if link == url {
-			logrus.Errorf("An attempt to create a short link: %v: \n%s", storeErr.ErrAlreadyExists, key)
-			return "", storeErr.ErrAlreadyExists
-		}
+	ok, err := cache.LookUp(url)
+	if ok {
+		logrus.Errorf("An attempt to create a short link: %v: \n", storeErr.ErrAlreadyExists)
+		return "", storeErr.ErrAlreadyExists
 	}
+	if err != nil {
+		logrus.Errorf("%v", err)
+		return "", err
+	}
+
 	//создаем новый рандомный uuid
 	new := uuid.New()
 	//создаем закодированный в б64 uuid

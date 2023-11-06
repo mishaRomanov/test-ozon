@@ -9,9 +9,10 @@ var (
 	ErrAlreadyExists = errors.New("short link already exists")
 )
 
-// создаем интерфейс как для постгреса
-// так и для  in-memory решения
+// Storager interface is for different storage solutions
+// whether it's postgres or in-memory
 type Storager interface {
-	GetValue() error
-	WriteValue() error
+	GetValue(string) (string, error)
+	LookUp(string) (bool, error)
+	WriteValue(string, string) error
 }

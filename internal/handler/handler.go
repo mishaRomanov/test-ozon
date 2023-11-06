@@ -11,31 +11,29 @@ import (
 	"net/http"
 )
 
-// структура для парсинга json
+// json parsing struct
 type requestBody struct {
 	Url string `json:"url"`
 }
 
-// здесь создаем in-memory хранилище для значений
-// надо сделать универсальную функцию которая создает нужное в зависимости
-// от переданного флага для запуска значение (мапа или бд)
+//creating a new storage
 var store = storage.NewCache()
 
-// хендлит гет реквесты по типу localhost:8080/link/*
+//GET requests handler
 func HandleGet(ctx *gin.Context) {
-	//достаем параметр (сокращенную ссылку)
+	//extract a parameter
 	shortLink := ctx.Param("shortLink")
 
-	//проверяем, не пусто ли
+	//check for " "
 	if shortLink == "" {
 		ctx.String(http.StatusBadRequest, "Empty link")
 		return
 	}
-	//находим полную ссылку-пару к короткой ссылке
+	//search for a pair
 	redirectTo, err := store.GetValue(shortLink)
 	logrus.Infoln(redirectTo)
 	if err != nil {
-		//проверяем ошибку
+		//handling error
 		logrus.Errorf("Error while searching for value %v", err)
 		ctx.String(fiber.StatusBadRequest, err.Error())
 		return
@@ -43,7 +41,7 @@ func HandleGet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, redirectTo)
 }
 
-// хендлер для создания ссылки
+//POST requests handler
 func HandlePost(ctx *gin.Context) {
 	body := requestBody{}
 	err := ctx.BindJSON(&body)
@@ -51,16 +49,14 @@ func HandlePost(ctx *gin.Context) {
 		ctx.String(fiber.StatusBadRequest, "Invalid JSON")
 		return
 	}
-	//записываем старую ссылку и новую
-	//и проверяем, есть ли уже сокращенная старая ссылка
-	//если да то ошибка
+	//writing old and new links
 	oldUrl := body.Url
 	newUrl, err := shorten.MakeAShortLink(oldUrl, store)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	}
 
-	//записываем значения
+	//writing links into storage
 	err = store.WriteValue(newUrl, oldUrl)
 	if err != nil {
 		logrus.Errorf("%v", err)
