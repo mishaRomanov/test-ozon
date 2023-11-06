@@ -52,8 +52,13 @@ func HandlePost(ctx *gin.Context) {
 		return
 	}
 	//записываем старую ссылку и новую
+	//и проверяем, есть ли уже сокращенная старая ссылка
+	//если да то ошибка
 	oldUrl := body.Url
-	newUrl := shorten.MakeAShortLink(oldUrl)
+	newUrl, err := shorten.MakeAShortLink(oldUrl, store)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
+	}
 
 	//записываем значения
 	err = store.WriteValue(newUrl, oldUrl)
