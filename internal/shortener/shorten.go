@@ -3,7 +3,7 @@ package shorten
 import (
 	"encoding/base64"
 	"github.com/google/uuid"
-	storage2 "github.com/mishaRomanov/test-ozon/internal/storage"
+	storeErr "github.com/mishaRomanov/test-ozon/internal/storage"
 	storage "github.com/mishaRomanov/test-ozon/internal/storage/cache"
 	"github.com/sirupsen/logrus"
 )
@@ -18,8 +18,8 @@ func MakeAShortLink(url string, inmemory *storage.Cache) (string, error) {
 	//проверяем, есть ли такая ссылка в мапе
 	for key, link := range inmemory.Cache {
 		if link == url {
-			logrus.Errorf("An attempt to create a short link: %v: \n%s", storage2.ErrAlreadyExists, key)
-			return "", storage2.ErrAlreadyExists
+			logrus.Errorf("An attempt to create a short link: %v: \n%s", storeErr.ErrAlreadyExists, key)
+			return "", storeErr.ErrAlreadyExists
 		}
 	}
 	//создаем новый рандомный uuid
