@@ -35,8 +35,9 @@ func main() {
 	//parsing
 	flag.Parse()
 
+	//setting up config
 	cfg, err := config.LoadConfig("../config")
-	//"postgres://misha:@localhost:5432/linksdb?sslmode=disable"
+
 	connectString := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Adress, cfg.DatabaseName)
 
 	var database *sql.DB
