@@ -3,25 +3,20 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	_ "github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
+	"github.com/mishaRomanov/test-ozon/config"
 	"github.com/mishaRomanov/test-ozon/internal/handler"
 	"github.com/mishaRomanov/test-ozon/internal/storage"
 	cache "github.com/mishaRomanov/test-ozon/internal/storage/cache"
 	"github.com/mishaRomanov/test-ozon/internal/storage/postgres"
 	"github.com/sirupsen/logrus"
-	"os"
-)
-
-var (
-	databaseConn = os.Setenv("DATABASE_URL", "postgres://misha:@localhost:5432/linksdb?sslmode=disable")
 )
 
 // func that creates storage depending on a flag value
 func createStorageBasedOnFlag(flag *string, db *sql.DB) storage.Storager {
 	if *flag == "postgres" {
-		//тут вставить экзмепляр бд которую мы инициализируем в main
 		return postgres.Create(db)
 	}
 	if *flag == "cache" {
@@ -40,13 +35,16 @@ func main() {
 	//parsing
 	flag.Parse()
 
+	cfg, err := config.LoadConfig("../config")
+	//"postgres://misha:@localhost:5432/linksdb?sslmode=disable"
+	connectString := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Adress, cfg.DatabaseName)
+
 	var database *sql.DB
-	database, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	database, err = sql.Open("postgres", connectString)
 	if err != nil {
 		logrus.Errorf("Failed to open database: %v", err)
 	}
 	//creating a storage based on which flag value we got
-	//переписать чтобы принимала sql.DB и иницииализировать постгрес тут же
 	handlerObject := handler.New(createStorageBasedOnFlag(Type, database))
 	//endpoint returns the full link if found
 	//the short one is given through :shortLink parameter

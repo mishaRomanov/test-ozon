@@ -5,9 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+// seting up a config for custom values for postgres
 type Config struct {
-	Host         string `mapstructure:"HOST"`
-	Adress       string `mapstructure:"DATABASE_NAME"`
+	User         string `mapstructure:"USER"`
+	Adress       string `mapstructure:"ADDRESS"`
 	DatabaseName string `mapstructure:"DATABASE_NAME"`
 	Password     string `mapstructure:"PASSWORD"`
 }
