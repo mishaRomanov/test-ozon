@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square)](https://goreportcard.com/report/github.com/mishaRomanov/test-ozon)
 # This a small link shortener Gin based-app for ozon tech team 
 ## Usage and how to run
 To run app use ``go run main.go --storage-type='x'`` *where x is either* ``postgres`` or ``cache`` 
@@ -5,7 +6,7 @@ To run app use ``go run main.go --storage-type='x'`` *where x is either* ``postg
 ``curl --location 'localhost:80/link/add'\
 --header 'Content-Type: application/json' \
 --data '{"url":"google.com"}'``
-### Which should return you something like this
+### Which returns a new link 
 ``New link generated: localhost:80/link/Nm_5MWFiYz``
 ### To get your old link back, you make a GET request to /link/*your_link* endpoint 
 ``curl --location 'localhost:80/link/NjA2NjkyZT'``
