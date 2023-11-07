@@ -42,7 +42,6 @@ func cleanShortLink(link string) string {
 
 func MakeAShortLink(url string, dataStorage storage.Storager) (string, error) {
 	//checking if we already have that url
-	logrus.Infoln(url)
 	ok, err := dataStorage.LookUp(url)
 	if ok {
 		logrus.Errorf("An attempt to create a short link: %v: \n", storage.ErrAlreadyExists)

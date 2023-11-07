@@ -44,6 +44,7 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 	body := requestBody{}
 	err := ctx.BindJSON(&body)
 	if err != nil {
+		logrus.Errorf("Invalid JSON: %v", err)
 		ctx.String(fiber.StatusBadRequest, "Invalid JSON")
 		return
 	}
@@ -51,14 +52,14 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 	oldUrl := body.Url
 	newUrl, err := shorten.MakeAShortLink(oldUrl, h.DataStorage)
 	if err != nil {
-		logrus.Errorf("handler:54\t%v", err)
+		logrus.Errorf("%v", err)
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	//writing links into storage
 	err = h.DataStorage.WriteValue(newUrl, oldUrl)
 	if err != nil {
-		logrus.Errorf("handler:59\t%v", err)
+		logrus.Errorf("%v", err)
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
