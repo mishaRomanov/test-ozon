@@ -23,7 +23,6 @@ type Handler struct {
 func (h *Handler) HandleGet(ctx *gin.Context) {
 	//extract a parameter
 	shortLink := ctx.Param("shortLink")
-
 	//check for " "
 	if shortLink == "" {
 		ctx.String(http.StatusBadRequest, "Empty link")
@@ -31,7 +30,6 @@ func (h *Handler) HandleGet(ctx *gin.Context) {
 	}
 	//search for a pair
 	redirectTo, err := h.DataStorage.GetValue(shortLink)
-	logrus.Infoln(redirectTo)
 	if err != nil {
 		//handling error
 		logrus.Errorf("Error while searching for value %v", err)
@@ -53,13 +51,14 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 	oldUrl := body.Url
 	newUrl, err := shorten.MakeAShortLink(oldUrl, h.DataStorage)
 	if err != nil {
+		logrus.Errorf("handler:54\t%v", err)
 		ctx.String(http.StatusBadRequest, err.Error())
+		return
 	}
-
 	//writing links into storage
 	err = h.DataStorage.WriteValue(newUrl, oldUrl)
 	if err != nil {
-		logrus.Errorf("%v", err)
+		logrus.Errorf("handler:59\t%v", err)
 		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}

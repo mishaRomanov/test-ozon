@@ -1,23 +1,78 @@
 package postgres
 
-import "database/sql"
+import (
+	"database/sql"
+	"github.com/mishaRomanov/test-ozon/internal/storage"
+	"github.com/sirupsen/logrus"
+)
+
+type linkSearcher struct {
+	id       int
+	old_link string
+	new_link string
+}
 
 type Database struct {
 	db *sql.DB
 }
 
-func (d *Database) GetValue(string) (string, error) {
-	return "", nil
+// gets full value
+func (d *Database) GetValue(new string) (string, error) {
+	link := linkSearcher{}
+	query := `SELECT *
+FROM links 
+WHERE new_link = $1;`
+	rows, err := d.db.Query(query, new)
+	if err != nil {
+		logrus.Errorf("%v", err)
+		return "", err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&link.id, &link.old_link, &link.new_link)
+	}
+	if err != nil {
+		logrus.Errorf("%v", err)
+		return "", err
+	}
+	return link.old_link, nil
 }
-func (d *Database) LookUp(string) (bool, error) {
-	return true, nil
+func (d *Database) LookUp(old string) (bool, error) {
+	link := linkSearcher{}
+	query := `SELECT * 
+FROM links 
+where old_link = $1`
+	rows, err := d.db.Query(query, old)
+	if err != nil {
+		logrus.Errorf("%v", err)
+		return false, err
+	}
+	for rows.Next() {
+		err = rows.Scan(&link.id, &link.old_link, &link.new_link)
+	}
+	return link.old_link == old, nil
 }
-func (d *Database) WriteValue(string, string) error {
+
+func (d *Database) WriteValue(short string, full string) error {
+	query := `INSERT INTO links(old_link,new_link) 
+VALUES($1,$2)`
+	_, err := d.db.Query(query, full, short)
+	if err != nil {
+		logrus.Error("%v: %v", storage.ErrNotWritten, err)
+		return err
+	}
 	return nil
 }
 
-func NewDatabase() *Database {
-	var db *Database
-	db.db.Exec(`CREATE TABLE links()`)
-	return db
+func Create(db *sql.DB) *Database {
+	query := `CREATE TABLE IF NOT EXISTS links(
+    link_id BIGSERIAL PRIMARY KEY, 
+    old_link text, 
+    new_link text);`
+	_, err := db.Exec(query)
+	if err != nil {
+		logrus.Errorf("%v", err)
+		return &Database{}
+	}
+	return &Database{db: db}
 }
