@@ -5,9 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gofiber/fiber/v2"
 	"github.com/mishaRomanov/test-ozon/internal/shortener"
-	storage "github.com/mishaRomanov/test-ozon/internal/storage/cache"
+	"github.com/mishaRomanov/test-ozon/internal/storage"
 	"github.com/sirupsen/logrus"
-
 	"net/http"
 )
 
@@ -16,11 +15,12 @@ type requestBody struct {
 	Url string `json:"url"`
 }
 
-//creating a new storage
-var store = storage.NewCache()
+type Handler struct {
+	DataStorage storage.Storager
+}
 
-//GET requests handler
-func HandleGet(ctx *gin.Context) {
+// GET requests handler method
+func (h *Handler) HandleGet(ctx *gin.Context) {
 	//extract a parameter
 	shortLink := ctx.Param("shortLink")
 
@@ -30,7 +30,7 @@ func HandleGet(ctx *gin.Context) {
 		return
 	}
 	//search for a pair
-	redirectTo, err := store.GetValue(shortLink)
+	redirectTo, err := h.DataStorage.GetValue(shortLink)
 	logrus.Infoln(redirectTo)
 	if err != nil {
 		//handling error
@@ -41,8 +41,8 @@ func HandleGet(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, redirectTo)
 }
 
-//POST requests handler
-func HandlePost(ctx *gin.Context) {
+// POST requests handler
+func (h *Handler) HandlePost(ctx *gin.Context) {
 	body := requestBody{}
 	err := ctx.BindJSON(&body)
 	if err != nil {
@@ -51,13 +51,13 @@ func HandlePost(ctx *gin.Context) {
 	}
 	//writing old and new links
 	oldUrl := body.Url
-	newUrl, err := shorten.MakeAShortLink(oldUrl, store)
+	newUrl, err := shorten.MakeAShortLink(oldUrl, h.DataStorage)
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	}
 
 	//writing links into storage
-	err = store.WriteValue(newUrl, oldUrl)
+	err = h.DataStorage.WriteValue(newUrl, oldUrl)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -65,4 +65,11 @@ func HandlePost(ctx *gin.Context) {
 	}
 	logrus.Infof("Data written: old link - %s, new link - %s\n", oldUrl, newUrl)
 	ctx.String(http.StatusOK, fmt.Sprintf("New link generated: localhost:80/link/%s", newUrl))
+}
+
+func New(storager storage.Storager) *Handler {
+	object := Handler{
+		storager,
+	}
+	return &object
 }

@@ -40,9 +40,9 @@ func cleanShortLink(link string) string {
 	return link
 }
 
-func MakeAShortLink(url string, cache storage.Storager) (string, error) {
+func MakeAShortLink(url string, dataStorage storage.Storager) (string, error) {
 	//checking if we already have that url
-	ok, err := cache.LookUp(url)
+	ok, err := dataStorage.LookUp(url)
 	if ok {
 		logrus.Errorf("An attempt to create a short link: %v: \n", storage.ErrAlreadyExists)
 		return "", storage.ErrAlreadyExists
