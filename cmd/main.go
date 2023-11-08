@@ -33,7 +33,7 @@ func main() {
 	service := gin.Default()
 
 	//setting up config
-	cfg, err := config.LoadConfig("../config")
+	cfg, err := config.LoadConfig(".")
 
 	connectString := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Adress, cfg.DatabaseName)
 

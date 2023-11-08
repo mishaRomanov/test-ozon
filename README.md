@@ -10,7 +10,7 @@ ADDRESS = "localhost:5432"
 DATABASE_NAME = "linksdb"
 PASSWORD = ""``
 
-Build an app with `go build cmd/main.go` and setup the config as shown earlier 
+Build an app with `go build cmd/main.go` in `cmd` directory and setup the config as shown earlier 
 
 `./main` to run 
 
