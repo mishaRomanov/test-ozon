@@ -24,7 +24,7 @@ func createStorageBasedOnFlag(flag *string, db *sql.DB) storage.Storager {
 		return cache.NewCache()
 	}
 	logrus.Infoln("Wrong flag value given. Creating a cache storage...")
-	return nil
+	return cache.NewCache()
 }
 
 func main() {

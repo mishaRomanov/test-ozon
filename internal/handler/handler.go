@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/gofiber/fiber/v2"
 	"github.com/mishaRomanov/test-ozon/internal/shortener"
 	"github.com/mishaRomanov/test-ozon/internal/storage"
 	"github.com/sirupsen/logrus"
@@ -33,7 +32,7 @@ func (h *Handler) HandleGet(ctx *gin.Context) {
 	if err != nil {
 		//handling error
 		logrus.Errorf("Error while searching for value %v", err)
-		ctx.String(fiber.StatusBadRequest, err.Error())
+		ctx.String(http.StatusBadRequest, err.Error())
 		return
 	}
 	ctx.JSON(http.StatusOK, redirectTo)
@@ -45,7 +44,7 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 	err := ctx.BindJSON(&body)
 	if err != nil {
 		logrus.Errorf("Invalid JSON: %v", err)
-		ctx.String(fiber.StatusBadRequest, "Invalid JSON")
+		ctx.String(http.StatusBadRequest, "Invalid JSON")
 		return
 	}
 	//writing old and new links
