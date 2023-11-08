@@ -11,7 +11,9 @@ ADDRESS = "localhost:5432"
 DATABASE_NAME = "linksdb"
 PASSWORD = ""``
 ## Usage and how to run
-To run app use ``--storage='x' flag`` *where x is either* ``postgres`` or ``cache`` 
+### To choose the storage type you have to set it in config file at 
+``config/conf.env:`` 
+### It's either `cache` or `postgres`
 ### To short a link use POST method on /link/add endpoint:
 ``curl --location 'localhost:80/link/add'\
 --header 'Content-Type: application/json' \

@@ -11,6 +11,7 @@ type Config struct {
 	Adress       string `mapstructure:"ADDRESS"`
 	DatabaseName string `mapstructure:"DATABASE_NAME"`
 	Password     string `mapstructure:"PASSWORD"`
+	StorageType  string `mapstructure:"STORAGE_TYPE"`
 }
 
 func LoadConfig(path string) (Config, error) {

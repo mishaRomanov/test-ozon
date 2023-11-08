@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -15,25 +14,23 @@ import (
 )
 
 // func that creates storage depending on a flag value
-func createStorageBasedOnFlag(flag *string, db *sql.DB) storage.Storager {
-	if *flag == "postgres" {
+func createStorageBasedOnFlag(config string, db *sql.DB) storage.Storager {
+	if config == "postgres" {
+		logrus.Infoln("Creating Postgres database...")
 		return postgres.Create(db)
 	}
-	if *flag == "cache" {
+	if config == "cache" {
+		logrus.Infoln("Creating in-memory storage...")
 		db.Close()
 		return cache.NewCache()
 	}
-	logrus.Infoln("Wrong flag value given. Creating a cache storage...")
+	logrus.Infoln("No correct config option detected. Creating in-memory storage...")
 	return cache.NewCache()
 }
 
 func main() {
 	//create a server
 	service := gin.Default()
-	//creating a flag
-	Type := flag.String("storage", "cache", "Used to determine what kind of storage to use")
-	//parsing
-	flag.Parse()
 
 	//setting up config
 	cfg, err := config.LoadConfig("../config")
@@ -46,7 +43,7 @@ func main() {
 		logrus.Errorf("Failed to open database: %v", err)
 	}
 	//creating a storage based on which flag value we got
-	handlerObject := handler.New(createStorageBasedOnFlag(Type, database))
+	handlerObject := handler.New(createStorageBasedOnFlag(cfg.StorageType, database))
 	//endpoint returns the full link if found
 	//the short one is given through :shortLink parameter
 	service.GET("/link/:shortLink", handlerObject.HandleGet)
