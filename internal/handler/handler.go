@@ -47,6 +47,11 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "Invalid JSON")
 		return
 	}
+	//если тело было пустое то возвращаем 400
+	if body.Url == "" {
+		ctx.String(http.StatusBadRequest, "No body given")
+		return
+	}
 	//writing old and new links
 	oldUrl := body.Url
 	newUrl, err := shorten.MakeAShortLink(oldUrl, h.DataStorage)
