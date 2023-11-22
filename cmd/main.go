@@ -11,15 +11,16 @@ import (
 	cache "github.com/mishaRomanov/test-ozon/internal/storage/cache"
 	"github.com/mishaRomanov/test-ozon/internal/storage/postgres"
 	"github.com/sirupsen/logrus"
+	"os"
 )
 
-// func that creates storage depending on a flag value
+// func that creates storage depending on an environmental variable
 func createStorageBasedOnFlag(config string, db *sql.DB) storage.Storager {
-	if config == "postgres" {
+	if config == "postgres" || config == "Postgres" {
 		logrus.Infoln("Creating Postgres database...")
 		return postgres.Create(db)
 	}
-	if config == "cache" {
+	if config == "cache" || config == "Cache" {
 		logrus.Infoln("Creating in-memory storage...")
 		db.Close()
 		return cache.NewCache()
@@ -32,8 +33,11 @@ func main() {
 	//create a server
 	service := gin.Default()
 
+	//creating environmental variable
+	storage_type := os.Getenv("STORAGE_TYPE")
+
 	//setting up config
-	cfg, err := config.LoadConfig(".")
+	cfg, err := config.InitConfig()
 
 	connectString := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Adress, cfg.DatabaseName)
 
@@ -42,8 +46,8 @@ func main() {
 	if err != nil {
 		logrus.Errorf("Failed to open database: %v", err)
 	}
-	//creating a storage based on which flag value we got
-	handlerObject := handler.New(createStorageBasedOnFlag(cfg.StorageType, database))
+	//creating a storage based on environmental variable
+	handlerObject := handler.New(createStorageBasedOnFlag(storage_type, database))
 	//endpoint returns the full link if found
 	//the short one is given through :shortLink parameter
 	service.GET("/link/:shortLink", handlerObject.HandleGet)
