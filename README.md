@@ -3,7 +3,7 @@
 # Prerequisites
 Create a Postgres database with 
 ``CREATE DATABASE linksdb;``
-Or choose your own custom database name with editing configure parameters in ``config/conf.env:``
+Or choose your own custom database name with editing configure parameters in ``cmd/conf.env:``
 
 ``USER = "misha"
 ADDRESS = "localhost:5432"
@@ -15,9 +15,13 @@ Build an app with `go build cmd/main.go` in `cmd` directory and setup the config
 `./main` to run 
 
 ## Usage and how to run
-To choose the storage type you have to set it in config file at 
-``config/conf.env:`` 
-### It's either `cache` or `postgres`
+To choose the storage type you have to set an environmental variable like this:
+`STORAGE_TYPE=*your_type*` where your_type is either `postgres` or `cache`
+
+### Example start 
+`STORAGE_TYPE=postgres ./app`
+
+Same with docker container: just set environmental variable before running a container:
 
 
  To short a link use POST method on /link/add endpoint:
