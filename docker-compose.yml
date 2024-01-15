@@ -1,0 +1,25 @@
+services:
+  web:
+    container_name: web_app
+    build: .
+    restart: always
+    environment:
+    - STORAGE=postgres
+    - ADDRESS=127.0.0.1
+    - USER=misha
+    - PORT=5432
+    - DB_NAME=misha
+    - PASSWORD=1234
+    ports: [8081:8080]
+    depends_on:
+    - db
+  db:
+    container_name: postgres
+    image: postgres:latest
+    restart: always
+    environment:
+    - POSTGRES_USER=misha
+    - POSTGRES_PASSWORD=1234
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/1.sql
+    ports: [5432:5432]
