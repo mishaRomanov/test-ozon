@@ -69,14 +69,14 @@ func main() {
 
 	//creating a connection string which has all the needed information:
 	//user, db name, address,password
-	connectString := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", cfg.User, cfg.Password, cfg.Address, cfg.DatabaseName)
-
+	connectString := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", cfg.User, cfg.Password, cfg.Address, cfg.Port, cfg.DatabaseName)
+	//fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", USER, PASSWORD, HOST, PORT, DBNAME)
 	//creating database object
 	var database *sql.DB
 
 	database, err = sql.Open("postgres", connectString)
 	if err != nil {
-		logrus.Errorf("Failed to open database: %v", err)
+		logrus.Fatalf("Failed to open database: %v", err)
 	}
 
 	//creating a handler.Handler object which contains needed storage type
