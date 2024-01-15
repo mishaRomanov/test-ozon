@@ -1,42 +1,30 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square)](https://goreportcard.com/report/github.com/mishaRomanov/test-ozon)
+# THIS CURRENTLY DOESN'T WORK PROPERLY!!! 
+# ---------
 # This a small link shortener Gin based-app for ozon tech team 
-# Prerequisites
-Create a Postgres database with 
-``CREATE DATABASE linksdb;``
-Or choose your own custom database name with editing configure parameters in ``cmd/conf.env:``
+# Prerequisites 
+Have Postgres installed and launched
+Have Docker installed and launched 
+# How to get app working 
+Clone my repository to your local machine `git clone github.com/mishaRomanov/test-ozon`
 
-``USER = "misha"
-ADDRESS = "localhost:5432"
-DATABASE_NAME = "linksdb"
-PASSWORD = ""``
+Run with docker compose 
+`docker compose up -d`
 
-Build an app with `go build cmd/main.go` in `cmd` directory and setup the config as shown earlier 
-
-`./main` to run 
-
-## Usage and how to run
-To choose the storage type you have to set an environmental variable like this:
-`STORAGE_TYPE=*your_type*` where your_type is either `postgres` or `cache`
-
-### Example start 
-`STORAGE_TYPE=postgres ./app`
-
-Same with docker container: just set environmental variable before running a container:
-
-
- To short a link use POST method on /link/add endpoint:
-``curl --location 'localhost:80/link/add'\
+# How to use
+To make link shorter use POST method on /link/add endpoint:
+``curl --location 'localhost:8080/link/add'\
 --header 'Content-Type: application/json' \
 --data '{"url":"google.com"}'``
 
-
 Which returns a new link 
-``New link generated: localhost:80/link/Nm_5MWFiYz``
+``New link generated: localhost:8080/link/Nm_5MWFiYz``
 
 
 To get your old link back, you make a GET request to /link/*your_link* endpoint
-``curl --location 'localhost:80/link/NjA2NjkyZT'``
-
+``curl --location 'localhost:8080/link/NjA2NjkyZT'``
 
 And it returns you full link in JSON
 ``"google.com"``
+
+Also feel free to use `/about` endpoint to get all the information you need to test the app.
