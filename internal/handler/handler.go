@@ -14,6 +14,8 @@ type requestBody struct {
 	Url string `json:"url"`
 }
 
+// Handler struct that contains storage inside
+// Independent of storage type
 type Handler struct {
 	DataStorage storage.Storager
 }
@@ -47,7 +49,7 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, "Invalid JSON")
 		return
 	}
-	//если тело было пустое то возвращаем 400
+	//if body if nil return badrequest
 	if body.Url == "" {
 		ctx.String(http.StatusBadRequest, "No body given")
 		return
@@ -68,7 +70,7 @@ func (h *Handler) HandlePost(ctx *gin.Context) {
 		return
 	}
 	logrus.Infof("Data written: old link - %s, new link - %s\n", oldUrl, newUrl)
-	ctx.String(http.StatusOK, fmt.Sprintf("New link generated: localhost:80/link/%s", newUrl))
+	ctx.String(http.StatusOK, fmt.Sprintf("New link generated: localhost:8080/link/%s", newUrl))
 }
 
 func New(storager storage.Storager) *Handler {
