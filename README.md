@@ -1,15 +1,17 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square)](https://goreportcard.com/report/github.com/mishaRomanov/test-ozon)
-# THIS CURRENTLY DOESN'T WORK PROPERLY!!! 
-# ---------
 # This a small link shortener Gin based-app for ozon tech team 
 # Prerequisites 
-Have Postgres installed and launched
-Have Docker installed and launched 
+Have docker installed 
 # How to get app working 
 Clone my repository to your local machine `git clone github.com/mishaRomanov/test-ozon`
 
-Run with docker compose 
+Go to cloned directory and run with docker compose 
 `docker compose up -d`
+
+# How to change the storage type
+Go to docker-compose.yml and find environmental variable STORAGE
+Set it to either postgres or cache 
+
 
 # How to use
 To make link shorter use POST method on /link/add endpoint:
