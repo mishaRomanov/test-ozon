@@ -5,7 +5,7 @@ services:
     restart: always
     environment:
     - STORAGE=postgres
-    - ADDRESS=127.0.0.1
+    - ADDRESS=postgres
     - USER=misha
     - PORT=5432
     - DB_NAME=misha
