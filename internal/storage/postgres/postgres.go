@@ -65,14 +65,5 @@ VALUES($1,$2)`
 }
 
 func Create(db *sql.DB) *Database {
-	query := `CREATE TABLE IF NOT EXISTS links(
-    link_id BIGSERIAL PRIMARY KEY, 
-    old_link text, 
-    new_link text);`
-	_, err := db.Exec(query)
-	if err != nil {
-		logrus.Errorf("%v", err)
-		return &Database{}
-	}
 	return &Database{db: db}
 }
